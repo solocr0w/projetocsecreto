@@ -1,26 +1,18 @@
 # =============================================
-# UNIVERSIDADE PRESBITERIANA MACKENZIE 
-# GRUPO: BRUNO GERMANETTI RAMALHO - 10426491
-#        MIGUEL PINEIRO CORATOLO SIMOES - 10427085
-#
-# CONFIGURAÇÃO DE COMPILAÇÃO
+# CONFIGURAÇÃO PARA CODESPACES
 # =============================================
-
 COMPILADOR = gcc
 OPCOES = -Wall -Wextra -std=c99 -I.
-DIR_FONTES = src
-DIR_BIN = bin
-DIR_ENTRADA = entrada
-DIR_SAIDA = saida
+PASTA_OBJ = ../bin
+EXECUTAVEL = $(PASTA_OBJ)/jogo_aventura
 
-ARQUIVOS_FONTE = $(wildcard $(DIR_FONTES)/*.c)
-OBJETOS = $(patsubst $(DIR_FONTES)/%.c,$(DIR_BIN)/%.o,$(ARQUIVOS_FONTE))
-EXECUTAVEL = $(DIR_BIN)/jogo_aventura
+# Lista todos os .c na pasta atual
+ARQUIVOS_C = $(wildcard *.c)
+OBJETOS = $(patsubst %.c,$(PASTA_OBJ)/%.o,$(ARQUIVOS_C))
 
 # =============================================
-# REGRAS DE COMPILAÇÃO
+# REGRAS PRINCIPAIS
 # =============================================
-
 .PHONY: tudo limpar executar
 
 tudo: $(EXECUTAVEL)
@@ -28,23 +20,22 @@ tudo: $(EXECUTAVEL)
 $(EXECUTAVEL): $(OBJETOS)
 	$(COMPILADOR) $(OPCOES) $(OBJETOS) -o $@
 
-$(DIR_BIN)/%.o: $(DIR_FONTES)/%.c | $(DIR_BIN)
+$(PASTA_OBJ)/%.o: %.c | $(PASTA_OBJ)
 	$(COMPILADOR) $(OPCOES) -c $< -o $@
 
-$(DIR_BIN):
-	mkdir -p $(DIR_BIN)
+$(PASTA_OBJ):
+	mkdir -p $(PASTA_OBJ)
 
 limpar:
-	rm -rf $(DIR_BIN)/*.o $(EXECUTAVEL)
+	rm -rf $(PASTA_OBJ)/*.o $(EXECUTAVEL)
 
 executar: tudo
-	@mkdir -p $(DIR_SAIDA)
-	./$(EXECUTAVEL) $(DIR_ENTRADA)/entrada.txt $(DIR_SAIDA)/saida.txt
+	@mkdir -p ../saida
+	./$(EXECUTAVEL) ../entrada/entrada.txt ../saida/saida.txt
 
 # =============================================
-# COMANDOS ÚTEIS
+# REGRA DE AJUDA
 # =============================================
-
 ajuda:
 	@echo "Comandos disponíveis:"
 	@echo "  make tudo     - Compila o programa"
