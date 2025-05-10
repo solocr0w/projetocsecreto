@@ -19,14 +19,13 @@
 #define TAM_MAX_REGRA 30
 
 typedef struct {
-
+    
     char titulo[50];
     float capacidadeMochila;
     char regraEspecial[TAM_MAX_REGRA];
     ItemJogo itensDisponiveis[MAX_ITENS_FASE];
     int quantidadeItens;
     float lucroObtido;
-    
 } FaseJogo;
 
 void executarFase(FaseJogo *fase);

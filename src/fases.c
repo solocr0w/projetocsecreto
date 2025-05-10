@@ -1,3 +1,11 @@
+/**
+ * UNIVERSIDADE PRESBITERIANA MACKENZIE 
+ * GRUPO: BRUNO GERMANETTI RAMALHO - 10426491
+ *        MIGUEL PINEIRO CORATOLO SIMOES - 10427085
+ *
+ * IMPLEMENTAÇÃO DAS FASES DO JOGO
+ * OBJETIVO: Processar cada fase usando estratégia gulosa
+ */
 #include "fases.h"
 #include "regras.h"
 #include "itens.h"
@@ -5,60 +13,105 @@
 #include <stdlib.h>
 #include <string.h>
 
-void processar_fase(Fase *fase) {
-    // Aplica regras especiais e calcula valor por peso
-    for (int i = 0; i < fase->num_itens; i++) {
-        if (strcmp(fase->regra, "MAGICOS_VALOR_DOBRADO") == 0) {
-            fase->itens[i].valor = aplicar_regra_magicos(&fase->itens[i]);
-        } else if (strcmp(fase->regra, "SOBREVIVENCIA_DESVALORIZADA") == 0) {
-            fase->itens[i].valor = aplicar_regra_sobrevivencia(&fase->itens[i]);
+/**
+ * Executa uma fase completa do jogo
+ * @param fase Ponteiro para a estrutura contendo os dados da fase
+ */
+void executarFase(FaseJogo *fase) {
+
+    // Aplica regras especiais e calcula relação valor/peso
+    for (int indiceItem = 0; indiceItem < fase->quantidadeItens; indiceItem++) {
+
+        if (strcmp(fase->regraEspecial, "MAGICOS_VALOR_DOBRADO") == 0) {
+
+            fase->itensDisponiveis[indiceItem].valorReal = 
+                ajustarValorMagico(&fase->itensDisponiveis[indiceItem]);
+
+        } else if (strcmp(fase->regraEspecial, "SOBREVIVENCIA_DESVALORIZADA") == 0) {
+
+            fase->itensDisponiveis[indiceItem].valorReal = 
+                ajustarValorSobrevivencia(&fase->itensDisponiveis[indiceItem]);
+
         }
-        calcular_valor_por_peso(&fase->itens[i]);
+
+        calcularRelacaoValorPeso(&fase->itensDisponiveis[indiceItem]);
     }
 
-    // Ordena itens por valor/peso
-    qsort(fase->itens, fase->num_itens, sizeof(Item), comparar_itens);
+    // Ordena itens por valor/peso (ordem decrescente)
+    qsort(fase->itensDisponiveis, fase->quantidadeItens, sizeof(ItemJogo), comparadorItens);
 
     // Limita a 3 melhores itens se necessário
-    int limite_itens = fase->num_itens;
-    if (strcmp(fase->regra, "TRES_MELHORES_VALOR_PESO") == 0) {
-        limite_itens = (fase->num_itens > 3) ? 3 : fase->num_itens;
+    int limiteItens = fase->quantidadeItens;
+
+    if (strcmp(fase->regraEspecial, "TRES_MELHORES_VALOR_PESO") == 0) {
+
+        limiteItens = (fase->quantidadeItens > 3) ? 3 : fase->quantidadeItens;
     }
 
-    // Seleciona itens usando estratégia gulosa
-    float capacidade_restante = fase->capacidade;
-    fase->lucro = 0;
+    // Processa seleção de itens
+    float capacidadeRestante = fase->capacidadeMochila;
 
-    printf("\n--- FASE: %s ---\n", fase->nome);
-    printf("Capacidade da mochila: %.2f kg\n", fase->capacidade);
-    printf("Regra aplicada: %s\n", traduzir_regra(fase->regra));
+    fase->lucroObtido = 0.0f;
 
-    for (int i = 0; i < limite_itens && capacidade_restante > 0; i++) {
-        int tecnologico = (strcmp(fase->regra, "TECNOLOGICOS_INTEIROS") == 0) && 
-                         (strcmp(fase->itens[i].tipo, "tecnologico") == 0);
+    // Cabeçalho da fase
+    printf("\n--- FASE: %s ---\n", fase->titulo);
+
+    printf("Capacidade da mochila: %.2f kg\n", fase->capacidadeMochila);
+
+    printf("Regra aplicada: %s\n", obterDescricaoRegra(fase->regraEspecial));
+
+
+    // Seleção gulosa de itens
+    for (int indiceItem = 0; indiceItem < limiteItens && capacidadeRestante > 0; indiceItem++) {
+
+        int ehTecnologico = (strcmp(fase->regraEspecial, "TECNOLOGICOS_INTEIROS") == 0) && 
+                          (strcmp(fase->itensDisponiveis[indiceItem].categoria, "tecnologico") == 0);
         
-        if (tecnologico) {
-            if (fase->itens[i].peso <= capacidade_restante) {
+        if (ehTecnologico) {
+
+            if (fase->itensDisponiveis[indiceItem].pesoKg <= capacidadeRestante) {
+
                 printf("Pegou (inteiro) %s (%.2fkg, R$ %.2f)\n", 
-                       fase->itens[i].nome, fase->itens[i].peso, fase->itens[i].valor);
-                fase->lucro += fase->itens[i].valor;
-                capacidade_restante -= fase->itens[i].peso;
+
+                       fase->itensDisponiveis[indiceItem].identificacao,
+
+                       fase->itensDisponiveis[indiceItem].pesoKg,
+
+                       fase->itensDisponiveis[indiceItem].valorReal);
+                
+                fase->lucroObtido += fase->itensDisponiveis[indiceItem].valorReal;
+
+                capacidadeRestante -= fase->itensDisponiveis[indiceItem].pesoKg;
             }
         } else {
-            if (fase->itens[i].peso <= capacidade_restante) {
+
+            if (fase->itensDisponiveis[indiceItem].pesoKg <= capacidadeRestante) {
+
                 printf("Pegou (inteiro) %s (%.2fkg, R$ %.2f)\n", 
-                       fase->itens[i].nome, fase->itens[i].peso, fase->itens[i].valor);
-                fase->lucro += fase->itens[i].valor;
-                capacidade_restante -= fase->itens[i].peso;
+                       fase->itensDisponiveis[indiceItem].identificacao,
+                       fase->itensDisponiveis[indiceItem].pesoKg,
+                       fase->itensDisponiveis[indiceItem].valorReal);
+                
+                fase->lucroObtido += fase->itensDisponiveis[indiceItem].valorReal;
+
+                capacidadeRestante -= fase->itensDisponiveis[indiceItem].pesoKg;
             } else {
-                float fracao = capacidade_restante / fase->itens[i].peso;
-                float valor_fracao = fracao * fase->itens[i].valor;
+
+                float fracao = capacidadeRestante / fase->itensDisponiveis[indiceItem].pesoKg;
+
+                float valorFracionado = fracao * fase->itensDisponiveis[indiceItem].valorReal;
+                
                 printf("Pegou (fracionado) %s (%.2fkg, R$ %.2f)\n", 
-                       fase->itens[i].nome, capacidade_restante, valor_fracao);
-                fase->lucro += valor_fracao;
-                capacidade_restante = 0;
+                       fase->itensDisponiveis[indiceItem].identificacao,
+                       capacidadeRestante,
+                       valorFracionado);
+                
+                fase->lucroObtido += valorFracionado;
+
+                capacidadeRestante = 0.0f;
             }
         }
     }
-    printf("Lucro da fase: R$ %.2f\n", fase->lucro);
+    
+    printf("Lucro da fase: R$ %.2f\n", fase->lucroObtido);
 }

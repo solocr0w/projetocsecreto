@@ -6,7 +6,7 @@
  * IMPLEMENTAÇÃO DA MANIPULAÇÃO DE ARQUIVOS
  */
 
-#include "io.h"
+#include "entradasaida.h"
 #include "fases.h"
 #include <stdio.h>
 #include <string.h>

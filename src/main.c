@@ -11,13 +11,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "fases.h"
-#include "io.h"
+#include "entradasaida.h"
 
 /**
  * Função principal
  * @param quantidadeArgumentos Número de argumentos da linha de comando
  * @param argumentos Vetor contendo os argumentos
- * @return Código de status (0 = sucesso)
  */
 int main(int quantidadeArgumentos, char *argumentos[]) {
     
