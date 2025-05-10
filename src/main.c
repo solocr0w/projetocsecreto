@@ -1,38 +1,86 @@
+/**
+ * UNIVERSIDADE PRESBITERIANA MACKENZIE 
+ * GRUPO: BRUNO GERMANETTI RAMALHO - 10426491
+ *        MIGUEL PINEIRO CORATOLO SIMOES - 10427085
+ *
+ * PROGRAMA PRINCIPAL - JOGO DE AVENTURA
+ * OBJETIVO: Implementar um jogo de escolha de itens usando estratégia gulosa
+ * VERSÃO: 1.0
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "fases.h"
 #include "io.h"
 
-int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        printf("Uso: %s <arquivo_entrada> <arquivo_saida>\n", argv[0]);
-        return 1;
-    }
-
-    Fase fases[MAX_FASES];
-    int num_fases = ler_arquivo_entrada(argv[1], fases);
+/**
+ * Função principal
+ * @param quantidadeArgumentos Número de argumentos da linha de comando
+ * @param argumentos Vetor contendo os argumentos
+ * @return Código de status (0 = sucesso)
+ */
+int main(int quantidadeArgumentos, char *argumentos[]) {
     
-    if (num_fases == 0) {
-        printf("Nenhuma fase encontrada no arquivo de entrada.\n");
+    /* Verificação inicial dos argumentos */
+    
+    if (quantidadeArgumentos != 3) {
+        printf("\nUso correto:\n");
+        printf("%s arquivo_entrada.txt arquivo_saida.txt\n\n", argumentos[0]);
         return 1;
     }
 
-    // Redireciona a saída para o arquivo
-    freopen(argv[2], "w", stdout);
+    FaseJogo listaDeFases[TOTAL_FASES];
+    int totalDeFases = lerArquivoEntrada(argumentos[1], listaDeFases);
+    
+    /* Validação do arquivo de entrada */
 
-    float lucro_total = 0;
-    for (int i = 0; i < num_fases; i++) {
-        processar_fase(&fases[i]);
-        lucro_total += fases[i].lucro;
+    if (totalDeFases == 0) {
+        printf("\nErro: Não foi possível ler nenhuma fase do arquivo!\n");
+        return 2;
     }
 
-    printf("\nLucro total: R$ %.2f\n", lucro_total);
+    /* Preparação do arquivo de saída */
 
-    // Restaura a saída padrão
-    fclose(stdout);
-    freopen("/dev/tty", "w", stdout); // Linux
-    // freopen("CON", "w", stdout); // Windows
+    FILE *arquivoSaida = freopen(argumentos[2], "w", stdout);
+    
+    if (arquivoSaida == NULL) {
+        printf("\nErro: Não foi possível criar o arquivo de saída!\n");
+        return 3;
 
-    printf("Processamento concluido. Resultados salvos em %s\n", argv[2]);
+    }
+
+    float lucroTotalAcumulado = 0.0f;
+
+    /* Processamento de cada fase */
+
+    for (int i = 0; i < totalDeFases; i++) {
+        
+        executarFase(&listaDeFases[i]);
+
+        lucroTotalAcumulado += listaDeFases[i].lucroObtido;
+        
+        /* Espaçamento entre fases na saída */
+
+        if (i < totalDeFases - 1) {
+
+            printf("\n");
+
+        }
+    }
+
+    /* Resultado final */
+
+    printf("\n\nLUCRO TOTAL DO JOGO: R$ %.2f\n", lucroTotalAcumulado);
+
+    /* Finalização */
+
+    fclose(arquivoSaida);
+    
+    /* Mensagem de confirmação no terminal */
+
+    freopen("/dev/tty", "w", stdout);
+    printf("\nProcesso concluído com sucesso!\n");
+    printf("Verifique os resultados em: %s\n\n", argumentos[2]);
+    
     return 0;
 }

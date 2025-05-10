@@ -1,24 +1,53 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -I.
-SRCDIR = .
-BINDIR = ../bin
+# =============================================
+# UNIVERSIDADE PRESBITERIANA MACKENZIE 
+# GRUPO: BRUNO GERMANETTI RAMALHO - 10426491
+#        MIGUEL PINEIRO CORATOLO SIMOES - 10427085
+#
+# CONFIGURAÇÃO DE COMPILAÇÃO
+# =============================================
 
-SOURCES = main.c fases.c itens.c regras.c io.c
-OBJECTS = $(SOURCES:%.c=$(BINDIR)/%.o)
-EXECUTABLE = $(BINDIR)/jogo_aventura
+COMPILADOR = gcc
+OPCOES = -Wall -Wextra -std=c99 -I.
+DIR_FONTES = src
+DIR_BIN = bin
+DIR_ENTRADA = entrada
+DIR_SAIDA = saida
 
-all: $(EXECUTABLE)
+ARQUIVOS_FONTE = $(wildcard $(DIR_FONTES)/*.c)
+OBJETOS = $(patsubst $(DIR_FONTES)/%.c,$(DIR_BIN)/%.o,$(ARQUIVOS_FONTE))
+EXECUTAVEL = $(DIR_BIN)/jogo_aventura
 
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o $@
+# =============================================
+# REGRAS DE COMPILAÇÃO
+# =============================================
 
-$(BINDIR)/%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+.PHONY: tudo limpar executar
 
-clean:
-	rm -f $(BINDIR)/*.o $(EXECUTABLE)
+tudo: $(EXECUTAVEL)
 
-run: all
-	$(EXECUTABLE) ../entrada/entrada.txt ../saida/saida.txt
+$(EXECUTAVEL): $(OBJETOS)
+	$(COMPILADOR) $(OPCOES) $(OBJETOS) -o $@
 
-.PHONY: all clean run
+$(DIR_BIN)/%.o: $(DIR_FONTES)/%.c | $(DIR_BIN)
+	$(COMPILADOR) $(OPCOES) -c $< -o $@
+
+$(DIR_BIN):
+	mkdir -p $(DIR_BIN)
+
+limpar:
+	rm -rf $(DIR_BIN)/*.o $(EXECUTAVEL)
+
+executar: tudo
+	@mkdir -p $(DIR_SAIDA)
+	./$(EXECUTAVEL) $(DIR_ENTRADA)/entrada.txt $(DIR_SAIDA)/saida.txt
+
+# =============================================
+# COMANDOS ÚTEIS
+# =============================================
+
+ajuda:
+	@echo "Comandos disponíveis:"
+	@echo "  make tudo     - Compila o programa"
+	@echo "  make limpar   - Remove arquivos gerados"
+	@echo "  make executar - Executa o programa"
+	@echo "  make ajuda    - Mostra esta mensagem"

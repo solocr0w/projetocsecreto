@@ -1,19 +1,29 @@
+/**
+ * UNIVERSIDADE PRESBITERIANA MACKENZIE 
+ * GRUPO: BRUNO GERMANETTI RAMALHO - 10426491
+ *        MIGUEL PINEIRO CORATOLO SIMOES - 10427085
+ *
+ * IMPLEMENTAÇÃO DOS ITENS
+ */
 #include "itens.h"
 #include <string.h>
 
-void calcular_valor_por_peso(Item *item) {
-    if (item->peso > 0) {
-        item->valor_por_peso = item->valor / item->peso;
-    } else {
-        item->valor_por_peso = 0;
-    }
+int comparadorItens(const void *itemA, const void *itemB) {
+    
+    const ItemJogo *primeiro = (const ItemJogo *)itemA;
+    const ItemJogo *segundo = (const ItemJogo *)itemB;
+    
+    if (primeiro->relacaoValorPeso > segundo->relacaoValorPeso) return -1;
+    if (primeiro->relacaoValorPeso < segundo->relacaoValorPeso) return 1;
+    
+    return 0;
 }
 
-int comparar_itens(const void *a, const void *b) {
-    const Item *item1 = (const Item *)a;
-    const Item *item2 = (const Item *)b;
+void calcularRelacaoValorPeso(ItemJogo *item) {
     
-    if (item1->valor_por_peso > item2->valor_por_peso) return -1;
-    if (item1->valor_por_peso < item2->valor_por_peso) return 1;
-    return 0;
+    if (item->pesoKg > 0.01f) {
+        item->relacaoValorPeso = item->valorReal / item->pesoKg;
+    } else {
+        item->relacaoValorPeso = 0.0f;
+    }
 }

@@ -1,29 +1,66 @@
+/**
+ * UNIVERSIDADE PRESBITERIANA MACKENZIE 
+ * GRUPO: BRUNO GERMANETTI RAMALHO - 10426491
+ *        MIGUEL PINEIRO CORATOLO SIMOES - 10427085
+ *
+ * IMPLEMENTAÇÃO DAS REGRAS
+ */
+
 #include "regras.h"
+
 #include <string.h>
 
-float aplicar_regra_magicos(Item *item) {
-    if (strcmp(item->tipo, "magico") == 0) {
-        return item->valor * 2;
+/**
+ * Traduz códigos de regra para texto
+ */
+
+const char* obterDescricaoRegra(const char *codigoRegra) {
+
+    if (strcmp(codigoRegra, "MAGICOS_VALOR_DOBRADO") == 0) {
+
+        return "Itens mágicos valem duas vezes mais";
+    
+    } else if (strcmp(codigoRegra, "TECNOLOGICOS_INTEIROS") == 0) {
+
+        return "Itens tecnológicos não podem ser fracionados";
+    
+    } else if (strcmp(codigoRegra, "SOBREVIVENCIA_DESVALORIZADA") == 0) {
+
+        return "Itens de sobrevivência valem 20pc menos";
+    
+    } else if (strcmp(codigoRegra, "TRES_MELHORES_VALOR_PESO") == 0) {
+
+        return "Os 3 melhores itens por valor/peso";
     }
-    return item->valor;
+    
+    return "Sem regras aplicadas";
 }
 
-float aplicar_regra_sobrevivencia(Item *item) {
-    if (strcmp(item->tipo, "sobrevivencia") == 0) {
-        return item->valor * 0.8;
+/**
+ * Aplica modificador para itens mágicos
+ */
+float ajustarValorMagico(ItemJogo *item) {
+    
+    if (strcmp(item->categoria, "magico") == 0) {
+
+        return item->valorReal * 2.0f;
     }
-    return item->valor;
+    
+    return item->valorReal;
 }
 
-const char* traduzir_regra(const char *regra) {
-    if (strcmp(regra, "MAGICOS_VALOR_DOBRADO") == 0) {
-        return "Itens magicos com valor dobrado";
-    } else if (strcmp(regra, "TECNOLOGICOS_INTEIROS") == 0) {
-        return "Itens tecnologicos nao podem ser fracionados";
-    } else if (strcmp(regra, "SOBREVIVENCIA_DESVALORIZADA") == 0) {
-        return "Itens de sobrevivencia perdem 20%% do valor";
-    } else if (strcmp(regra, "TRES_MELHORES_VALOR_PESO") == 0) {
-        return "Apenas os tres itens com maior valor/peso podem ser escolhidos";
+/**
+ * Aplica modificador para itens de sobrevivência
+ */
+
+float ajustarValorSobrevivencia(ItemJogo *item) {
+
+    if (strcmp(item->categoria, "sobrevivencia") == 0) {
+
+
+        return item->valorReal * 0.8f;
+
     }
-    return "Nenhuma regra especial";
+    
+    return item->valorReal;
 }

@@ -1,11 +1,22 @@
-#ifndef IO_H
-#define IO_H
+/**
+ * UNIVERSIDADE PRESBITERIANA MACKENZIE 
+ * GRUPO: BRUNO GERMANETTI RAMALHO - 10426491
+ *        MIGUEL PINEIRO CORATOLO SIMOES - 10427085
+ *
+ * MANIPULAÇÃO DE ARQUIVOS
+ */
+
+#ifndef MANIPULACAO_ARQUIVOS_H
+
+#define MANIPULACAO_ARQUIVOS_H
 
 #include "fases.h"
 
-#define MAX_LINHA 200
+#define TAMANHO_MAXIMO_LINHA 350
 
-void trim_string(char *str);
-int ler_arquivo_entrada(const char *nome_arquivo, Fase fases[]);
+void removerEspacosExcedentes(char *texto);
+
+
+int lerArquivoEntrada(const char *nomeArquivo, FaseJogo listaFases[]);
 
 #endif

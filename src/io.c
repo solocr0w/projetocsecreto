@@ -1,63 +1,94 @@
+/**
+ * UNIVERSIDADE PRESBITERIANA MACKENZIE 
+ * GRUPO: BRUNO GERMANETTI RAMALHO - 10426491
+ *        MIGUEL PINEIRO CORATOLO SIMOES - 10427085
+ *
+ * IMPLEMENTAÇÃO DA MANIPULAÇÃO DE ARQUIVOS
+ */
+
 #include "io.h"
 #include "fases.h"
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
-void trim_string(char *str) {
-    int i = strlen(str) - 1;
-    while (i >= 0 && isspace(str[i])) {
-        str[i] = '\0';
-        i--;
+/**
+ * Remove espaços e quebras de linha do final
+ */
+
+void removerEspacosExcedentes(char *texto) {
+    
+    int posicao = strlen(texto) - 1;
+    
+    while (posicao >= 0 && isspace(texto[posicao])) {
+        texto[posicao] = '\0';
+        posicao--;
     }
 }
 
-int ler_arquivo_entrada(const char *nome_arquivo, Fase fases[]) {
-    FILE *arquivo = fopen(nome_arquivo, "r");
-    if (arquivo == NULL) {
-        perror("Erro ao abrir arquivo de entrada");
+/**
+ * Processa arquivo de entrada linha por linha
+ */
+
+int lerArquivoEntrada(const char *nomeArquivo, FaseJogo listaFases[]) {
+    
+    FILE *arquivoEntrada = fopen(nomeArquivo, "r");
+    
+    if (arquivoEntrada == NULL) {
+        perror("Erro ao abrir arquivo");
         return 0;
     }
 
-    char linha[MAX_LINHA];
-    int fase_atual = -1;
-    int num_fases = 0;
+    char linha[TAMANHO_MAXIMO_LINHA];
 
-    while (fgets(linha, sizeof(linha), arquivo) != NULL) {
-        trim_string(linha);
+    int indiceFase = -1;
+    int contadorFases = 0;
+
+    while (fgets(linha, sizeof(linha), arquivoEntrada) != NULL) {
+        
+        removerEspacosExcedentes(linha);
         
         if (strstr(linha, "FASE:") == linha) {
-            fase_atual++;
-            num_fases++;
-            sscanf(linha, "FASE: %[^\n]", fases[fase_atual].nome);
-            fases[fase_atual].num_itens = 0;
-        } 
-        else if (strstr(linha, "CAPACIDADE:") == linha) {
-            sscanf(linha, "CAPACIDADE: %f", &fases[fase_atual].capacidade);
-        } 
-        else if (strstr(linha, "REGRA:") == linha) {
-            sscanf(linha, "REGRA: %s", fases[fase_atual].regra);
-        } 
-        else if (strstr(linha, "ITEM:") == linha) {
-            Item item;
-            char *token = strtok(linha, ",");
-            sscanf(token, "ITEM: %[^\n]", item.nome);
+
+            indiceFase++;
+            contadorFases++;
+            sscanf(linha, "FASE: %[^\n]", listaFases[indiceFase].titulo);
+            listaFases[indiceFase].quantidadeItens = 0;
+        
+        } else if (strstr(linha, "CAPACIDADE:") == linha) {
+            sscanf(linha, "CAPACIDADE: %f", &listaFases[indiceFase].capacidadeMochila);
+        
+        } else if (strstr(linha, "REGRA:") == linha) {
+
+            sscanf(linha, "REGRA: %s", listaFases[indiceFase].regraEspecial);
+        
+        } else if (strstr(linha, "ITEM:") == linha) {
             
-            token = strtok(NULL, ",");
-            sscanf(token, "%f", &item.peso);
+            ItemJogo novoItem;
+
+            char *pedaco = strtok(linha, ",");
             
-            token = strtok(NULL, ",");
-            sscanf(token, "%f", &item.valor);
+            sscanf(pedaco, "ITEM: %[^\n]", novoItem.identificacao);
             
-            token = strtok(NULL, ",");
-            sscanf(token, "%s", item.tipo);
-            trim_string(item.tipo);
+            pedaco = strtok(NULL, ",");
+
+            sscanf(pedaco, "%f", &novoItem.pesoKg);
             
-            fases[fase_atual].itens[fases[fase_atual].num_itens] = item;
-            fases[fase_atual].num_itens++;
+            pedaco = strtok(NULL, ",");
+
+            sscanf(pedaco, "%f", &novoItem.valorReal);
+            
+            pedaco = strtok(NULL, ",");
+
+            sscanf(pedaco, "%s", novoItem.categoria);
+            removerEspacosExcedentes(novoItem.categoria);
+            
+            listaFases[indiceFase].itensDisponiveis[listaFases[indiceFase].quantidadeItens] = novoItem;
+
+            listaFases[indiceFase].quantidadeItens++;
         }
     }
 
-    fclose(arquivo);
-    return num_fases;
+    fclose(arquivoEntrada);
+    return contadorFases;
 }
