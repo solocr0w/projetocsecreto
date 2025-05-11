@@ -16,36 +16,6 @@
 #include "itens.h"
 #include <string.h>
 
-/**
- * FUNÇÃO: comparadorItens
- * OBJETIVO: Servir como função de comparação para qsort, ordenando itens por valor/peso
- *           em ordem decrescente (do mais valioso para o menos valioso por kg)
- * 
- * PARÂMETROS:
- *   @param itemA: Ponteiro para o primeiro item a ser comparado
- *   @param itemB: Ponteiro para o segundo item a ser comparado
- * 
- * RETORNO:
- *   - -1 se itemA tem maior valor/peso que itemB
- *   -  1 se itemA tem menor valor/peso que itemB
- *   -  0 se os itens tem igual valor/peso
- * 
- * COMPORTAMENTO:
- *   - Implementa a lógica inversa para ordenação decrescente
- *   - Compatível com a função qsort da biblioteca padrão
- *   - Considera a precisão de ponto flutuante nas comparações
- */
-
-int comparadorItens(const void *itemA, const void *itemB) {
-    
-    const ItemJogo *primeiro = (const ItemJogo *)itemA;
-    const ItemJogo *segundo = (const ItemJogo *)itemB;
-    
-    if (primeiro->relacaoValorPeso > segundo->relacaoValorPeso) return -1;
-    if (primeiro->relacaoValorPeso < segundo->relacaoValorPeso) return 1;
-    
-    return 0;
-}
 
 /**
  * FUNÇÃO: calcularRelacaoValorPeso
@@ -73,4 +43,41 @@ void calcularRelacaoValorPeso(ItemJogo *item) {
     } else {
         item->relacaoValorPeso = 0.0f;
     }
+
+}
+
+// Função para trocar dois itens
+void trocarItens(ItemJogo *a, ItemJogo *b) {
+    ItemJogo temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// Função de partição para o Quick Sort
+int particionar(ItemJogo *itens, int baixo, int alto) {
+    float pivo = itens[alto].relacaoValorPeso;
+    int i = (baixo - 1);
+
+    for (int j = baixo; j <= alto - 1; j++) {
+        if (itens[j].relacaoValorPeso > pivo) {  // Ordem decrescente
+            i++;
+            trocarItens(&itens[i], &itens[j]);
+        }
+    }
+    trocarItens(&itens[i + 1], &itens[alto]);
+    return (i + 1);
+}
+
+// Função Quick Sort
+void quickSortItens(ItemJogo *itens, int baixo, int alto) {
+    if (baixo < alto) {
+        int pi = particionar(itens, baixo, alto);
+        quickSortItens(itens, baixo, pi - 1);
+        quickSortItens(itens, pi + 1, alto);
+    }
+}
+
+// Função wrapper para ordenação
+void arrumarItens(ItemJogo *itens, int quantidade) {
+    quickSortItens(itens, 0, quantidade - 1);
 }

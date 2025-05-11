@@ -79,7 +79,7 @@ void executarFase(FaseJogo *fase) {
     // 2. ORDENAÇÃO DOS ITENS
     // =============================================
 
-    qsort(fase->itensDisponiveis, fase->quantidadeItens, sizeof(ItemJogo), comparadorItens);
+    arrumarItens(fase->itensDisponiveis, fase->quantidadeItens);
 
     // Limita a 3 melhores itens se necessário
     int limiteItens = fase->quantidadeItens;

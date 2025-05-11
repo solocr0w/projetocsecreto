@@ -25,6 +25,6 @@ typedef struct {
 
 void calcularRelacaoValorPeso(ItemJogo *item);
 
-int comparadorItens(const void *itemA, const void *itemB);
+void arrumarItens(ItemJogo *itens, int quantidade);
 
 #endif
