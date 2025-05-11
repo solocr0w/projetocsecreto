@@ -13,7 +13,21 @@
 #include <ctype.h>
 
 /**
- * Remove espaços e quebras de linha do final
+ * FUNÇÃO: removerEspacosExcedentes
+ * OBJETIVO: Remove espaços em branco, tabs e quebras de linha do final de uma string
+ * 
+ * PARÂMETROS:
+ *   @param texto: Ponteiro para a string a ser processada (modificada in-place)
+ * 
+ * OPERAÇÃO:
+ *   1. Localiza o final da string através de strlen()
+ *   2. Percorre a string de trás para frente enquanto encontra caracteres brancos
+ *   3. Substitui cada caractere branco por '\0' até encontrar um caractere visível
+ * 
+ * OBSERVAÇÕES:
+ *   - Modifica a string original diretamente
+ *   - Considera todos os tipos de espaços definidos por isspace()
+ *   - Fundamental para o correto parsing das linhas do arquivo
  */
 
 void removerEspacosExcedentes(char *texto) {
@@ -27,7 +41,32 @@ void removerEspacosExcedentes(char *texto) {
 }
 
 /**
- * Processa arquivo de entrada linha por linha
+ * FUNÇÃO: lerArquivoEntrada
+ * OBJETIVO: Carrega e interpreta o arquivo de configuração das fases do jogo
+ * 
+ * PARÂMETROS:
+ *   @param nomeArquivo: Caminho do arquivo a ser lido
+ *   @param listaFases: Array de estruturas FaseJogo para armazenar os dados
+ * 
+ * RETORNO:
+ *   - Número de fases carregadas com sucesso
+ *   - 0 em caso de falha na leitura
+ * 
+ * LÓGICA DE OPERAÇÃO:
+ *   1. Abertura do arquivo em modo leitura com tratamento de erros
+ *   2. Leitura linha por linha do arquivo:
+ *      a) Identificação de marcadores (FASE:, CAPACIDADE:, etc.)
+ *      b) Extração dos dados usando sscanf() com padrões específicos
+ *      c) Armazenamento na estrutura correspondente
+ *   3. Processamento de itens com divisão por tokens
+ *   4. Fechamento seguro do arquivo
+ * 
+ * ESTRUTURA DO ARQUIVO ESPERADO:
+ *   FASE: <nome>
+ *   CAPACIDADE: <float>
+ *   REGRA: <string>
+ *   ITEM: <nome>, <peso>, <valor>, <tipo>
+ * 
  */
 
 int lerArquivoEntrada(const char *nomeArquivo, FaseJogo listaFases[]) {
@@ -35,7 +74,9 @@ int lerArquivoEntrada(const char *nomeArquivo, FaseJogo listaFases[]) {
     FILE *arquivoEntrada = fopen(nomeArquivo, "r");
     
     if (arquivoEntrada == NULL) {
-        perror("Erro ao abrir arquivo");
+
+        perror("Erro tentando abrir o arquivo, verifique a entrada");
+        
         return 0;
     }
 

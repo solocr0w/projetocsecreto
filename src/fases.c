@@ -3,9 +3,17 @@
  * GRUPO: BRUNO GERMANETTI RAMALHO - 10426491
  *        MIGUEL PINEIRO CORATOLO SIMOES - 10427085
  *
- * IMPLEMENTAÇÃO DAS FASES DO JOGO
- * OBJETIVO: Processar cada fase usando estratégia gulosa
+ * MÓDULO: IMPLEMENTAÇÃO DAS FASES DO JOGO
+ * DESCRIÇÃO: Contém a lógica central do jogo, implementando o algoritmo guloso
+ *            para seleção de itens em cada fase, considerando as regras especiais.
+ * 
+ * PRINCIPAIS FUNCIONALIDADES:
+ *  - Aplicação de regras especiais aos itens
+ *  - Ordenação estratégica dos itens
+ *  - Seleção gulosa considerando restrições
+ *  - Cálculo do lucro obtido em cada fase
  */
+
 #include "fases.h"
 #include "regras.h"
 #include "itens.h"
@@ -14,12 +22,42 @@
 #include <string.h>
 
 /**
- * Executa uma fase completa do jogo
- * @param fase Ponteiro para a estrutura contendo os dados da fase
+ * FUNÇÃO: executarFase
+ * OBJETIVO: Implementa o núcleo do algoritmo guloso para uma fase do jogo
+ * 
+ * PARÂMETROS:
+ *   @param fase: Ponteiro para a estrutura FaseJogo contendo todos os dados da fase
+ * 
+ * PROCESSAMENTO PRINCIPAL:
+ *   1. PRÉ-PROCESSAMENTO:
+ *      - Aplica regras especiais que modificam valores dos itens
+ *      - Calcula a relação valor/peso para cada item
+ *   
+ *   2. ORDENAÇÃO:
+ *      - Organiza os itens por valor/peso (decrescente)
+ *      - Considera limitações de quantidade quando aplicável
+ *   
+ *   3. SELEÇÃO GULOSA:
+ *      - Percorre itens ordenados selecionando os mais valiosos primeiro
+ *      - Trata casos especiais (itens não-fracionáveis)
+ *      - Calcula lucro obtido e capacidade restante
+ * 
+ *   4. SAÍDA:
+ *      - Exibe os itens selecionados e o resultado da fase
+ * 
+ * REGRAS ESPECIAIS IMPLEMENTADAS:
+ *   - MAGICOS_VALOR_DOBRADO: Dobra o valor de itens mágicos
+ *   - SOBREVIVENCIA_DESVALORIZADA: Reduz 20% do valor de itens de sobrevivência
+ *   - TECNOLOGICOS_INTEIROS: Itens tecnológicos não podem ser fracionados
+ *   - TRES_MELHORES_VALOR_PESO: Limita seleção aos 3 itens mais eficientes
  */
+
 void executarFase(FaseJogo *fase) {
 
-    // Aplica regras especiais e calcula relação valor/peso
+    // =============================================
+    // 1. APLICAÇÃO DAS REGRAS ESPECIAIS
+    // =============================================
+
     for (int indiceItem = 0; indiceItem < fase->quantidadeItens; indiceItem++) {
 
         if (strcmp(fase->regraEspecial, "MAGICOS_VALOR_DOBRADO") == 0) {
@@ -37,7 +75,10 @@ void executarFase(FaseJogo *fase) {
         calcularRelacaoValorPeso(&fase->itensDisponiveis[indiceItem]);
     }
 
-    // Ordena itens por valor/peso (ordem decrescente)
+    // =============================================
+    // 2. ORDENAÇÃO DOS ITENS
+    // =============================================
+
     qsort(fase->itensDisponiveis, fase->quantidadeItens, sizeof(ItemJogo), comparadorItens);
 
     // Limita a 3 melhores itens se necessário
@@ -48,7 +89,10 @@ void executarFase(FaseJogo *fase) {
         limiteItens = (fase->quantidadeItens > 3) ? 3 : fase->quantidadeItens;
     }
 
-    // Processa seleção de itens
+    // =============================================
+    // 3. SELEÇÃO GULOSA
+    // =============================================
+
     float capacidadeRestante = fase->capacidadeMochila;
 
     fase->lucroObtido = 0.0f;
@@ -113,5 +157,9 @@ void executarFase(FaseJogo *fase) {
         }
     }
     
+        // =============================================
+        // 4. RESULTADO FINAL
+        // =============================================
+        
     printf("Lucro da fase: R$ %.2f\n", fase->lucroObtido);
 }
